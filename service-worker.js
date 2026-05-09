@@ -1,5 +1,5 @@
 // Bump this when you change index.html so phones pick up the new version.
-const CACHE = 'universal-calculator-v1';
+const CACHE = 'magnitude-calculator-v2';
 const ASSETS = [
   './',
   './index.html',
