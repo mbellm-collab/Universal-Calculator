@@ -1,6 +1,6 @@
 {
-  "name": "Universal Calculator",
-  "short_name": "Calculator",
+  "name": "Magnitude Calculator",
+  "short_name": "Magnitude",
   "description": "Convert temperature, distance, weight, and currency.",
   "start_url": "./",
   "scope": "./",
