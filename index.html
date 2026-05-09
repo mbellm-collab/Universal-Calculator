@@ -141,6 +141,19 @@
   }
   .hidden { display: none; }
   select option { background: var(--btn); color: var(--text); }
+  /* Reserved space at the bottom for a future clickable banner. */
+  .banner-slot {
+    margin-top: 20px;
+    min-height: 72px;
+    border-radius: 12px;
+    border: 1px dashed transparent;
+  }
+  .banner-slot:not(:empty) {
+    border-color: var(--border);
+    background: var(--panel);
+    padding: 12px;
+    cursor: pointer;
+  }
   @media (max-width: 520px) {
     body { padding: 16px 12px; }
     .container { padding: 0 4px; }
@@ -159,7 +172,6 @@
     <select id="lang-select"></select>
   </div>
   <h1 id="title">Universal Calculator</h1>
-  <div class="subtitle" id="subtitle">Convert between units of temperature, distance, weight, and currency.</div>
 
   <div class="tabs" role="tablist">
     <button class="tab active" data-tab="temperature" data-i18n="tab_temp">Temperature</button>
@@ -268,16 +280,13 @@
       <span id="rate-status-text" data-i18n="rates_loading">Loading live rates...</span>
       <button id="rate-refresh-btn" data-i18n="refresh">Refresh</button>
     </div>
-    <div class="note">
-      <span data-i18n="rates_note">Live rates from open.er-api.com (free, updated daily). Falls back to built-in reference rates when offline.</span>
-      <details style="margin-top:8px;">
-        <summary style="cursor:pointer;" data-i18n="edit_rates">Edit reference rates</summary>
-        <textarea id="cur-rates-edit" style="width:100%;min-height:140px;margin-top:8px;font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:12px;padding:8px;border-radius:6px;"></textarea>
-        <button id="cur-rates-save" style="margin-top:8px;padding:6px 12px;border-radius:6px;cursor:pointer;" data-i18n="save_rates">Save fallback rates</button>
-        <span id="cur-rates-status" style="margin-left:8px;font-size:12px;"></span>
-      </details>
-    </div>
+    <textarea id="cur-rates-edit" style="display:none;"></textarea>
+    <button id="cur-rates-save" style="display:none;"></button>
+    <span id="cur-rates-status" style="display:none;"></span>
   </div>
+
+  <!-- Reserved for future clickable banner -->
+  <div id="banner-slot" class="banner-slot" aria-hidden="true"></div>
 </div>
 
 <script>
@@ -403,7 +412,6 @@
     document.documentElement.lang = currentLang;
     document.getElementById('lang-label').textContent = t.lang_label;
     document.getElementById('title').textContent = t.title;
-    document.getElementById('subtitle').textContent = t.subtitle;
     document.title = t.title;
     var els = document.querySelectorAll('[data-i18n]');
     for (var i=0;i<els.length;i++){
