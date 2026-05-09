@@ -36,15 +36,29 @@
   .container { max-width: 720px; margin: 0 auto; }
   h1 { font-size: 24px; font-weight: 600; margin: 0 0 4px 0; color: var(--text); }
   .subtitle { color: var(--muted); font-size: 14px; margin-bottom: 20px; }
+  .lang-bar {
+    display: flex; justify-content: flex-end; align-items: center;
+    gap: 8px; margin-bottom: 12px;
+  }
+  .lang-bar select {
+    background: var(--btn); color: var(--text);
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 6px 10px; font-size: 13px; cursor: pointer;
+  }
   .tabs {
     display: flex; gap: 6px; background: var(--panel);
     padding: 6px; border-radius: 12px; margin-bottom: 20px;
     border: 1px solid var(--border);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
   }
+  .tabs::-webkit-scrollbar { display: none; }
   .tab {
-    flex: 1; padding: 10px 12px; border: none; background: transparent;
+    flex: 1 0 auto; padding: 10px 14px; border: none; background: transparent;
     font-size: 14px; font-weight: 500; color: var(--muted);
     cursor: pointer; border-radius: 8px; transition: all 0.15s;
+    white-space: nowrap;
   }
   .tab:hover { color: var(--text); background: var(--btn); }
   .tab.active {
@@ -110,31 +124,54 @@
     border: none !important; font-weight: 600;
   }
   .note button:hover { opacity: 0.9; }
+  .rate-status {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; color: var(--muted); margin-top: 10px;
+  }
+  .rate-status .dot {
+    display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+    background: var(--muted);
+  }
+  .rate-status.live .dot { background: #34d399; }
+  .rate-status.stale .dot { background: var(--accent); }
+  .rate-status button {
+    margin-left: auto; padding: 4px 10px; font-size: 11px;
+    background: var(--btn); color: var(--text); border: 1px solid var(--border);
+    border-radius: 6px; cursor: pointer;
+  }
   .hidden { display: none; }
   select option { background: var(--btn); color: var(--text); }
   @media (max-width: 520px) {
-    body { padding: 16px; }
+    body { padding: 16px 12px; }
+    .container { padding: 0 4px; }
+    .panel { padding: 16px; }
     .row { grid-template-columns: 1fr; }
     .swap-btn { width: 100%; height: 36px; margin-bottom: 0; }
+    .tabs { padding: 4px; gap: 4px; }
+    .tab { padding: 10px 12px; font-size: 13px; }
   }
 </style>
 </head>
 <body>
 <div class="container">
-  <h1>Universal Calculator</h1>
-  <div class="subtitle">Convert between units of temperature, distance, weight, and currency.</div>
+  <div class="lang-bar">
+    <span id="lang-label">Language</span>
+    <select id="lang-select"></select>
+  </div>
+  <h1 id="title">Universal Calculator</h1>
+  <div class="subtitle" id="subtitle">Convert between units of temperature, distance, weight, and currency.</div>
 
   <div class="tabs" role="tablist">
-    <button class="tab active" data-tab="temperature">Temperature</button>
-    <button class="tab" data-tab="distance">Distance</button>
-    <button class="tab" data-tab="weight">Weight</button>
-    <button class="tab" data-tab="currency">Currency</button>
+    <button class="tab active" data-tab="temperature" data-i18n="tab_temp">Temperature</button>
+    <button class="tab" data-tab="distance" data-i18n="tab_dist">Distance</button>
+    <button class="tab" data-tab="weight" data-i18n="tab_wt">Weight</button>
+    <button class="tab" data-tab="currency" data-i18n="tab_cur">Currency</button>
   </div>
 
   <div class="panel" id="panel-temperature">
     <div class="row">
       <div class="field">
-        <label>From</label>
+        <label data-i18n="from">From</label>
         <input type="number" id="temp-from-val" value="100" step="any">
         <select id="temp-from-unit">
           <option value="C">Celsius (&deg;C)</option>
@@ -144,7 +181,7 @@
       </div>
       <button class="swap-btn" data-swap="temp" title="Swap">&#8646;</button>
       <div class="field">
-        <label>To</label>
+        <label data-i18n="to">To</label>
         <input type="number" id="temp-to-val" step="any">
         <select id="temp-to-unit">
           <option value="C">Celsius (&deg;C)</option>
@@ -155,91 +192,88 @@
     </div>
     <div class="formula" id="temp-formula"></div>
     <div class="quick">
-      <span class="quick-chip" data-temp="0,C">Freezing 0&deg;C</span>
-      <span class="quick-chip" data-temp="100,C">Boiling 100&deg;C</span>
-      <span class="quick-chip" data-temp="37,C">Body 37&deg;C</span>
+      <span class="quick-chip" data-temp="0,C" data-i18n="chip_freezing">Freezing 0&deg;C</span>
+      <span class="quick-chip" data-temp="100,C" data-i18n="chip_boiling">Boiling 100&deg;C</span>
+      <span class="quick-chip" data-temp="37,C" data-i18n="chip_body">Body 37&deg;C</span>
       <span class="quick-chip" data-temp="-40,C">-40&deg; (C=F)</span>
-      <span class="quick-chip" data-temp="20,C">Room 20&deg;C</span>
+      <span class="quick-chip" data-temp="20,C" data-i18n="chip_room">Room 20&deg;C</span>
     </div>
   </div>
 
   <div class="panel hidden" id="panel-distance">
     <div class="row">
       <div class="field">
-        <label>From</label>
+        <label data-i18n="from">From</label>
         <input type="number" id="dist-from-val" value="1" step="any">
         <select id="dist-from-unit"></select>
       </div>
       <button class="swap-btn" data-swap="dist" title="Swap">&#8646;</button>
       <div class="field">
-        <label>To</label>
+        <label data-i18n="to">To</label>
         <input type="number" id="dist-to-val" step="any">
         <select id="dist-to-unit"></select>
       </div>
     </div>
     <div class="formula" id="dist-formula"></div>
     <div class="quick">
-      <span class="quick-chip" data-dist="1,m,ft">1 m to ft</span>
-      <span class="quick-chip" data-dist="1,mi,km">1 mi to km</span>
-      <span class="quick-chip" data-dist="1,in,cm">1 in to cm</span>
-      <span class="quick-chip" data-dist="1,yd,m">1 yd to m</span>
-      <span class="quick-chip" data-dist="100,m,ft">100 m to ft</span>
+      <span class="quick-chip" data-dist="1,m,ft">1 m &#8594; ft</span>
+      <span class="quick-chip" data-dist="1,mi,km">1 mi &#8594; km</span>
+      <span class="quick-chip" data-dist="1,in,cm">1 in &#8594; cm</span>
+      <span class="quick-chip" data-dist="1,yd,m">1 yd &#8594; m</span>
+      <span class="quick-chip" data-dist="100,m,ft">100 m &#8594; ft</span>
     </div>
   </div>
 
   <div class="panel hidden" id="panel-weight">
     <div class="row">
       <div class="field">
-        <label>From</label>
+        <label data-i18n="from">From</label>
         <input type="number" id="wt-from-val" value="1" step="any">
         <select id="wt-from-unit"></select>
       </div>
       <button class="swap-btn" data-swap="wt" title="Swap">&#8646;</button>
       <div class="field">
-        <label>To</label>
+        <label data-i18n="to">To</label>
         <input type="number" id="wt-to-val" step="any">
         <select id="wt-to-unit"></select>
       </div>
     </div>
     <div class="formula" id="wt-formula"></div>
     <div class="quick">
-      <span class="quick-chip" data-wt="1,kg,lb">1 kg to lb</span>
-      <span class="quick-chip" data-wt="1,lb,kg">1 lb to kg</span>
-      <span class="quick-chip" data-wt="1,oz,g">1 oz to g</span>
-      <span class="quick-chip" data-wt="1,t,lb">1 ton to lb</span>
-      <span class="quick-chip" data-wt="100,g,oz">100 g to oz</span>
+      <span class="quick-chip" data-wt="1,kg,lb">1 kg &#8594; lb</span>
+      <span class="quick-chip" data-wt="1,lb,kg">1 lb &#8594; kg</span>
+      <span class="quick-chip" data-wt="1,oz,g">1 oz &#8594; g</span>
+      <span class="quick-chip" data-wt="1,t,lb" data-i18n="chip_ton_lb">1 ton &#8594; lb</span>
+      <span class="quick-chip" data-wt="100,g,oz">100 g &#8594; oz</span>
     </div>
   </div>
 
   <div class="panel hidden" id="panel-currency">
     <div class="row">
       <div class="field">
-        <label>From</label>
+        <label data-i18n="from">From</label>
         <input type="number" id="cur-from-val" value="100" step="any">
         <select id="cur-from-unit"></select>
       </div>
       <button class="swap-btn" data-swap="cur" title="Swap">&#8646;</button>
       <div class="field">
-        <label>To</label>
+        <label data-i18n="to">To</label>
         <input type="number" id="cur-to-val" step="any">
         <select id="cur-to-unit"></select>
       </div>
     </div>
     <div class="formula" id="cur-formula"></div>
-    <div class="quick">
-      <span class="quick-chip" data-cur="100,USD,EUR">$100 to EUR</span>
-      <span class="quick-chip" data-cur="100,EUR,USD">100 EUR to USD</span>
-      <span class="quick-chip" data-cur="100,USD,GBP">$100 to GBP</span>
-      <span class="quick-chip" data-cur="100,USD,JPY">$100 to JPY</span>
-      <span class="quick-chip" data-cur="100,USD,MXN">$100 to MXN</span>
-      <span class="quick-chip" data-cur="100,USD,CRC">$100 to CRC</span>
+    <div class="rate-status" id="rate-status">
+      <span class="dot"></span>
+      <span id="rate-status-text" data-i18n="rates_loading">Loading live rates...</span>
+      <button id="rate-refresh-btn" data-i18n="refresh">Refresh</button>
     </div>
     <div class="note">
-      Currency rates are reference values stored locally. Edit them below if you need fresher numbers.
+      <span data-i18n="rates_note">Live rates from open.er-api.com (free, updated daily). Falls back to built-in reference rates when offline.</span>
       <details style="margin-top:8px;">
-        <summary style="cursor:pointer;">Edit reference rates</summary>
+        <summary style="cursor:pointer;" data-i18n="edit_rates">Edit reference rates</summary>
         <textarea id="cur-rates-edit" style="width:100%;min-height:140px;margin-top:8px;font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:12px;padding:8px;border-radius:6px;"></textarea>
-        <button id="cur-rates-save" style="margin-top:8px;padding:6px 12px;border-radius:6px;cursor:pointer;">Save rates</button>
+        <button id="cur-rates-save" style="margin-top:8px;padding:6px 12px;border-radius:6px;cursor:pointer;" data-i18n="save_rates">Save fallback rates</button>
         <span id="cur-rates-status" style="margin-left:8px;font-size:12px;"></span>
       </details>
     </div>
@@ -248,6 +282,153 @@
 
 <script>
 (function(){
+  /* ---------- i18n ---------- */
+  var I18N = {
+    en: {
+      lang_label: 'Language',
+      title: 'Universal Calculator',
+      subtitle: 'Convert between units of temperature, distance, weight, and currency.',
+      tab_temp: 'Temperature', tab_dist: 'Distance', tab_wt: 'Weight', tab_cur: 'Currency',
+      from: 'From', to: 'To',
+      chip_freezing: 'Freezing 0°C', chip_boiling: 'Boiling 100°C',
+      chip_body: 'Body 37°C', chip_room: 'Room 20°C',
+      chip_ton_lb: '1 ton → lb',
+      rates_loading: 'Loading live rates...',
+      rates_live: 'Live rates updated', rates_cached: 'Using cached rates from',
+      rates_offline: 'Offline — using built-in reference rates',
+      rates_note: 'Live rates from open.er-api.com (free, updated daily). Falls back to built-in reference rates when offline.',
+      refresh: 'Refresh', edit_rates: 'Edit fallback rates', save_rates: 'Save fallback rates',
+      saved: 'Saved', invalid: 'Invalid: ',
+      same_unit: 'Same unit'
+    },
+    es: {
+      lang_label: 'Idioma',
+      title: 'Calculadora Universal',
+      subtitle: 'Convierte entre unidades de temperatura, distancia, peso y moneda.',
+      tab_temp: 'Temperatura', tab_dist: 'Distancia', tab_wt: 'Peso', tab_cur: 'Moneda',
+      from: 'De', to: 'A',
+      chip_freezing: 'Congelación 0°C', chip_boiling: 'Ebullición 100°C',
+      chip_body: 'Cuerpo 37°C', chip_room: 'Ambiente 20°C',
+      chip_ton_lb: '1 ton → lb',
+      rates_loading: 'Cargando tasas en vivo...',
+      rates_live: 'Tasas actualizadas', rates_cached: 'Usando tasas en caché desde',
+      rates_offline: 'Sin conexión — usando tasas de referencia',
+      rates_note: 'Tasas en vivo de open.er-api.com (gratis, actualizado a diario). Usa tasas de respaldo sin conexión.',
+      refresh: 'Actualizar', edit_rates: 'Editar tasas de respaldo', save_rates: 'Guardar tasas',
+      saved: 'Guardado', invalid: 'Inválido: ',
+      same_unit: 'Misma unidad'
+    },
+    pt: {
+      lang_label: 'Idioma',
+      title: 'Calculadora Universal',
+      subtitle: 'Converte entre unidades de temperatura, distância, peso e moeda.',
+      tab_temp: 'Temperatura', tab_dist: 'Distância', tab_wt: 'Peso', tab_cur: 'Moeda',
+      from: 'De', to: 'Para',
+      chip_freezing: 'Congelamento 0°C', chip_boiling: 'Ebulição 100°C',
+      chip_body: 'Corpo 37°C', chip_room: 'Ambiente 20°C',
+      chip_ton_lb: '1 ton → lb',
+      rates_loading: 'Carregando taxas ao vivo...',
+      rates_live: 'Taxas atualizadas', rates_cached: 'Usando taxas em cache de',
+      rates_offline: 'Offline — usando taxas de referência',
+      rates_note: 'Taxas ao vivo de open.er-api.com (grátis, atualizado diariamente). Usa taxas de reserva offline.',
+      refresh: 'Atualizar', edit_rates: 'Editar taxas de reserva', save_rates: 'Salvar taxas',
+      saved: 'Salvo', invalid: 'Inválido: ',
+      same_unit: 'Mesma unidade'
+    },
+    fr: {
+      lang_label: 'Langue',
+      title: 'Calculatrice Universelle',
+      subtitle: 'Convertir entre unités de température, distance, poids et devise.',
+      tab_temp: 'Température', tab_dist: 'Distance', tab_wt: 'Poids', tab_cur: 'Devise',
+      from: 'De', to: 'Vers',
+      chip_freezing: 'Congélation 0°C', chip_boiling: 'Ébullition 100°C',
+      chip_body: 'Corps 37°C', chip_room: 'Ambiant 20°C',
+      chip_ton_lb: '1 ton → lb',
+      rates_loading: 'Chargement des taux...',
+      rates_live: 'Taux actualisés', rates_cached: 'Taux en cache depuis',
+      rates_offline: 'Hors ligne — taux de référence',
+      rates_note: 'Taux en direct de open.er-api.com (gratuit, mis à jour quotidiennement). Utilise les taux de secours hors ligne.',
+      refresh: 'Actualiser', edit_rates: 'Modifier les taux de secours', save_rates: 'Enregistrer',
+      saved: 'Enregistré', invalid: 'Invalide : ',
+      same_unit: 'Même unité'
+    },
+    de: {
+      lang_label: 'Sprache',
+      title: 'Universal-Rechner',
+      subtitle: 'Umrechnen zwischen Temperatur-, Distanz-, Gewichts- und Währungseinheiten.',
+      tab_temp: 'Temperatur', tab_dist: 'Distanz', tab_wt: 'Gewicht', tab_cur: 'Währung',
+      from: 'Von', to: 'Nach',
+      chip_freezing: 'Gefrierpunkt 0°C', chip_boiling: 'Siedepunkt 100°C',
+      chip_body: 'Körper 37°C', chip_room: 'Zimmer 20°C',
+      chip_ton_lb: '1 t → lb',
+      rates_loading: 'Live-Kurse werden geladen...',
+      rates_live: 'Kurse aktualisiert', rates_cached: 'Cache-Kurse von',
+      rates_offline: 'Offline — Referenzkurse werden verwendet',
+      rates_note: 'Live-Kurse von open.er-api.com (kostenlos, tägliche Updates). Greift offline auf gespeicherte Kurse zurück.',
+      refresh: 'Aktualisieren', edit_rates: 'Reserve-Kurse bearbeiten', save_rates: 'Speichern',
+      saved: 'Gespeichert', invalid: 'Ungültig: ',
+      same_unit: 'Gleiche Einheit'
+    },
+    it: {
+      lang_label: 'Lingua',
+      title: 'Calcolatrice Universale',
+      subtitle: 'Converti tra unità di temperatura, distanza, peso e valuta.',
+      tab_temp: 'Temperatura', tab_dist: 'Distanza', tab_wt: 'Peso', tab_cur: 'Valuta',
+      from: 'Da', to: 'A',
+      chip_freezing: 'Congelamento 0°C', chip_boiling: 'Ebollizione 100°C',
+      chip_body: 'Corpo 37°C', chip_room: 'Ambiente 20°C',
+      chip_ton_lb: '1 ton → lb',
+      rates_loading: 'Caricamento tassi live...',
+      rates_live: 'Tassi aggiornati', rates_cached: 'Tassi in cache da',
+      rates_offline: 'Offline — tassi di riserva',
+      rates_note: 'Tassi live da open.er-api.com (gratuito, aggiornato ogni giorno). Riserva offline.',
+      refresh: 'Aggiorna', edit_rates: 'Modifica tassi di riserva', save_rates: 'Salva',
+      saved: 'Salvato', invalid: 'Non valido: ',
+      same_unit: 'Stessa unità'
+    }
+  };
+
+  function detectLang(){
+    try {
+      var saved = localStorage.getItem('uc-lang');
+      if (saved && I18N[saved]) return saved;
+    } catch(e){}
+    var nav = (navigator.language || navigator.userLanguage || 'en').toLowerCase().slice(0,2);
+    return I18N[nav] ? nav : 'en';
+  }
+  var currentLang = detectLang();
+
+  function applyI18n(){
+    var t = I18N[currentLang];
+    document.documentElement.lang = currentLang;
+    document.getElementById('lang-label').textContent = t.lang_label;
+    document.getElementById('title').textContent = t.title;
+    document.getElementById('subtitle').textContent = t.subtitle;
+    document.title = t.title;
+    var els = document.querySelectorAll('[data-i18n]');
+    for (var i=0;i<els.length;i++){
+      var key = els[i].getAttribute('data-i18n');
+      if (t[key]) els[i].textContent = t[key];
+    }
+  }
+
+  // Build language picker
+  var langSelect = document.getElementById('lang-select');
+  var langNames = { en: 'English', es: 'Español', pt: 'Português', fr: 'Français', de: 'Deutsch', it: 'Italiano' };
+  Object.keys(I18N).forEach(function(code){
+    var o = document.createElement('option');
+    o.value = code; o.textContent = langNames[code] || code;
+    if (code === currentLang) o.selected = true;
+    langSelect.appendChild(o);
+  });
+  langSelect.addEventListener('change', function(){
+    currentLang = langSelect.value;
+    try { localStorage.setItem('uc-lang', currentLang); } catch(e){}
+    applyI18n();
+    refreshFormulasAndStatus();
+  });
+
+  /* ---------- Tabs ---------- */
   var tabs = document.querySelectorAll('.tab');
   var panels = {
     temperature: document.getElementById('panel-temperature'),
@@ -273,6 +454,7 @@
   try { lastTab = localStorage.getItem('uc-tab') || 'temperature'; } catch(e){}
   activateTab(lastTab);
 
+  /* ---------- Temperature ---------- */
   function tempConvert(value, from, to){
     if (isNaN(value)) return NaN;
     var c;
@@ -285,14 +467,14 @@
   }
   function tempFormula(from, to){
     var f = {
-      'C-F': 'F = C * 9/5 + 32',
-      'C-K': 'K = C + 273.15',
-      'F-C': 'C = (F - 32) * 5/9',
-      'F-K': 'K = (F - 32) * 5/9 + 273.15',
-      'K-C': 'C = K - 273.15',
-      'K-F': 'F = (K - 273.15) * 9/5 + 32'
+      'C-F': '°F = °C × 9/5 + 32',
+      'C-K': 'K = °C + 273.15',
+      'F-C': '°C = (°F − 32) × 5/9',
+      'F-K': 'K = (°F − 32) × 5/9 + 273.15',
+      'K-C': '°C = K − 273.15',
+      'K-F': '°F = (K − 273.15) × 9/5 + 32'
     };
-    return from === to ? 'Same unit' : f[from + '-' + to];
+    return from === to ? I18N[currentLang].same_unit : f[from + '-' + to];
   }
   function updateTemp(source){
     var fromVal = parseFloat(document.getElementById('temp-from-val').value);
@@ -313,6 +495,7 @@
   document.getElementById('temp-from-unit').addEventListener('change', function(){ updateTemp('units'); });
   document.getElementById('temp-to-unit').addEventListener('change', function(){ updateTemp('units'); });
 
+  /* ---------- Linear units (distance, weight) ---------- */
   var distUnits = {
     mm: { label: 'Millimeters (mm)', factor: 0.001 },
     cm: { label: 'Centimeters (cm)', factor: 0.01 },
@@ -324,7 +507,6 @@
     mi: { label: 'Miles (mi)',       factor: 1609.344 },
     nmi:{ label: 'Nautical miles',   factor: 1852 }
   };
-
   var wtUnits = {
     mg: { label: 'Milligrams (mg)', factor: 0.001 },
     g:  { label: 'Grams (g)',       factor: 1 },
@@ -380,6 +562,7 @@
   var updateDist = makeUpdater('dist', distUnits);
   var updateWt = makeUpdater('wt', wtUnits);
 
+  /* ---------- Currency (with live rates) ---------- */
   var defaultCurRates = {
     USD: 1.0, EUR: 0.92, GBP: 0.79, JPY: 152.0, CHF: 0.88,
     CAD: 1.36, AUD: 1.51, NZD: 1.65, CNY: 7.20, INR: 83.5,
@@ -405,7 +588,8 @@
     ILS: 'Israeli Shekel (ILS)', PHP: 'Philippine Peso (PHP)', MYR: 'Malaysian Ringgit (MYR)',
     TWD: 'Taiwan Dollar (TWD)', CRC: 'Costa Rican Colon (CRC)'
   };
-  function loadCurRates(){
+
+  function loadFallbackRates(){
     try {
       var stored = localStorage.getItem('uc-cur-rates');
       if (stored) return JSON.parse(stored);
@@ -414,7 +598,11 @@
     Object.keys(defaultCurRates).forEach(function(k){ copy[k] = defaultCurRates[k]; });
     return copy;
   }
-  var curRates = loadCurRates();
+  var fallbackRates = loadFallbackRates();
+  var curRates = fallbackRates; // active rates, will be replaced by live if available
+  var ratesUpdatedAt = null;
+  var ratesSource = 'fallback'; // 'live' | 'cached' | 'fallback'
+
   function buildCurUnits(){
     var obj = {};
     Object.keys(curRates).forEach(function(k){
@@ -435,6 +623,7 @@
     var fromV = parseFloat(document.getElementById('cur-from-val').value);
     var fromU = document.getElementById('cur-from-unit').value;
     var toU = document.getElementById('cur-to-unit').value;
+    if (!curRates[fromU] || !curRates[toU]) return;
     if (source === 'from' || source === 'units'){
       var r = linearConvert(fromV, fromU, toU, curUnits);
       document.getElementById('cur-to-val').value = isNaN(r) ? '' : roundMoney(r);
@@ -451,29 +640,120 @@
   document.getElementById('cur-from-unit').addEventListener('change', function(){ updateCur('units'); });
   document.getElementById('cur-to-unit').addEventListener('change', function(){ updateCur('units'); });
 
+  function setRateStatus(){
+    var box = document.getElementById('rate-status');
+    var text = document.getElementById('rate-status-text');
+    var t = I18N[currentLang];
+    box.classList.remove('live','stale');
+    if (ratesSource === 'live'){
+      box.classList.add('live');
+      text.textContent = t.rates_live + ' · ' + formatTime(ratesUpdatedAt);
+    } else if (ratesSource === 'cached'){
+      box.classList.add('stale');
+      text.textContent = t.rates_cached + ' ' + formatTime(ratesUpdatedAt);
+    } else {
+      text.textContent = t.rates_offline;
+    }
+  }
+  function formatTime(ts){
+    if (!ts) return '';
+    try {
+      var d = new Date(ts);
+      return d.toLocaleString(currentLang, { dateStyle: 'short', timeStyle: 'short' });
+    } catch(e){
+      return new Date(ts).toString();
+    }
+  }
+
+  function loadCachedLiveRates(){
+    try {
+      var raw = localStorage.getItem('uc-live-rates');
+      if (raw){
+        var parsed = JSON.parse(raw);
+        if (parsed && parsed.rates && parsed.timestamp) return parsed;
+      }
+    } catch(e){}
+    return null;
+  }
+  function saveCachedLiveRates(rates, timestamp){
+    try {
+      localStorage.setItem('uc-live-rates', JSON.stringify({ rates: rates, timestamp: timestamp }));
+    } catch(e){}
+  }
+
+  function applyRates(rates, source, ts){
+    // Keep fallback for any currencies the API doesn't return
+    var merged = {};
+    Object.keys(fallbackRates).forEach(function(k){ merged[k] = fallbackRates[k]; });
+    Object.keys(rates).forEach(function(k){ if (curLabels[k]) merged[k] = rates[k]; });
+    curRates = merged;
+    curUnits = buildCurUnits();
+    ratesSource = source;
+    ratesUpdatedAt = ts;
+    refillCurSelects(true);
+    updateCur('units');
+    setRateStatus();
+  }
+
+  function fetchLiveRates(){
+    var t = I18N[currentLang];
+    document.getElementById('rate-status-text').textContent = t.rates_loading;
+    fetch('https://open.er-api.com/v6/latest/USD', { cache: 'no-store' })
+      .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(function(data){
+        if (!data || !data.rates || data.result !== 'success') throw new Error('Bad response');
+        var ts = (data.time_last_update_unix ? data.time_last_update_unix * 1000 : Date.now());
+        saveCachedLiveRates(data.rates, ts);
+        applyRates(data.rates, 'live', ts);
+      })
+      .catch(function(){
+        // fall back to cached or static
+        var cached = loadCachedLiveRates();
+        if (cached){
+          applyRates(cached.rates, 'cached', cached.timestamp);
+        } else {
+          curRates = fallbackRates;
+          curUnits = buildCurUnits();
+          ratesSource = 'fallback';
+          ratesUpdatedAt = null;
+          refillCurSelects(true);
+          updateCur('units');
+          setRateStatus();
+        }
+      });
+  }
+  document.getElementById('rate-refresh-btn').addEventListener('click', fetchLiveRates);
+
+  /* ---------- Fallback rate editor ---------- */
   var ratesEdit = document.getElementById('cur-rates-edit');
-  ratesEdit.value = JSON.stringify(curRates, null, 2);
+  ratesEdit.value = JSON.stringify(fallbackRates, null, 2);
   document.getElementById('cur-rates-save').addEventListener('click', function(){
     var status = document.getElementById('cur-rates-status');
+    var t = I18N[currentLang];
     try {
       var parsed = JSON.parse(ratesEdit.value);
       if (typeof parsed !== 'object' || !parsed.USD) throw new Error('Must include USD');
       Object.keys(parsed).forEach(function(k){
         if (typeof parsed[k] !== 'number' || parsed[k] <= 0) throw new Error('Rates must be positive numbers');
       });
-      curRates = parsed;
-      try { localStorage.setItem('uc-cur-rates', JSON.stringify(curRates)); } catch(e){}
-      curUnits = buildCurUnits();
-      refillCurSelects(true);
-      updateCur('units');
-      status.textContent = 'Saved';
-      status.style.color = '#0f8b3a';
+      fallbackRates = parsed;
+      try { localStorage.setItem('uc-cur-rates', JSON.stringify(fallbackRates)); } catch(e){}
+      // If currently using fallback, refresh active rates too
+      if (ratesSource === 'fallback'){
+        curRates = fallbackRates;
+        curUnits = buildCurUnits();
+        refillCurSelects(true);
+        updateCur('units');
+      }
+      status.textContent = t.saved;
+      status.style.color = '#34d399';
     } catch(e){
-      status.textContent = 'Invalid: ' + e.message;
-      status.style.color = '#b3261e';
+      status.textContent = t.invalid + e.message;
+      status.style.color = '#ff6b6b';
     }
   });
 
+  /* ---------- Swap and chips ---------- */
   var swapMap = {
     temp: ['temp-from-unit','temp-to-unit','temp-from-val','temp-to-val', updateTemp],
     dist: ['dist-from-unit','dist-to-unit','dist-from-val','dist-to-val', updateDist],
@@ -497,53 +777,24 @@
     })(swapBtns[s]);
   }
 
-  var tempChips = document.querySelectorAll('[data-temp]');
-  for (var i=0;i<tempChips.length;i++){
-    (function(c){
-      c.addEventListener('click', function(){
-        var parts = c.dataset.temp.split(',');
-        document.getElementById('temp-from-val').value = parts[0];
-        document.getElementById('temp-from-unit').value = parts[1];
-        updateTemp('from');
-      });
-    })(tempChips[i]);
+  function bindChips(selector, parser, fn, fields){
+    var chips = document.querySelectorAll(selector);
+    for (var i=0;i<chips.length;i++){
+      (function(c){
+        c.addEventListener('click', function(){
+          var parts = c.getAttribute(parser).split(',');
+          for (var k=0;k<fields.length;k++){
+            document.getElementById(fields[k]).value = parts[k];
+          }
+          fn('from');
+        });
+      })(chips[i]);
+    }
   }
-  var distChips = document.querySelectorAll('[data-dist]');
-  for (var i=0;i<distChips.length;i++){
-    (function(c){
-      c.addEventListener('click', function(){
-        var parts = c.dataset.dist.split(',');
-        document.getElementById('dist-from-val').value = parts[0];
-        document.getElementById('dist-from-unit').value = parts[1];
-        document.getElementById('dist-to-unit').value = parts[2];
-        updateDist('from');
-      });
-    })(distChips[i]);
-  }
-  var wtChips = document.querySelectorAll('[data-wt]');
-  for (var i=0;i<wtChips.length;i++){
-    (function(c){
-      c.addEventListener('click', function(){
-        var parts = c.dataset.wt.split(',');
-        document.getElementById('wt-from-val').value = parts[0];
-        document.getElementById('wt-from-unit').value = parts[1];
-        document.getElementById('wt-to-unit').value = parts[2];
-        updateWt('from');
-      });
-    })(wtChips[i]);
-  }
-  var curChips = document.querySelectorAll('[data-cur]');
-  for (var i=0;i<curChips.length;i++){
-    (function(c){
-      c.addEventListener('click', function(){
-        var parts = c.dataset.cur.split(',');
-        document.getElementById('cur-from-val').value = parts[0];
-        document.getElementById('cur-from-unit').value = parts[1];
-        document.getElementById('cur-to-unit').value = parts[2];
-        updateCur('from');
-      });
-    })(curChips[i]);
-  }
+  bindChips('[data-temp]', 'data-temp', updateTemp, ['temp-from-val','temp-from-unit']);
+  bindChips('[data-dist]', 'data-dist', updateDist, ['dist-from-val','dist-from-unit','dist-to-unit']);
+  bindChips('[data-wt]',   'data-wt',   updateWt,   ['wt-from-val','wt-from-unit','wt-to-unit']);
+  bindChips('[data-cur]',  'data-cur',  updateCur,  ['cur-from-val','cur-from-unit','cur-to-unit']);
 
   function roundNice(n){
     if (!isFinite(n)) return '';
@@ -558,10 +809,29 @@
     return Math.round(n * 100) / 100;
   }
 
+  function refreshFormulasAndStatus(){
+    updateTemp('units');
+    updateDist('units');
+    updateWt('units');
+    updateCur('units');
+    setRateStatus();
+  }
+
+  // Init
+  applyI18n();
   updateTemp('from');
   updateDist('from');
   updateWt('from');
-  updateCur('from');
+  // Try to use cached live rates immediately, then refresh from network
+  var cached = loadCachedLiveRates();
+  if (cached){
+    var ageHours = (Date.now() - cached.timestamp) / 3600000;
+    applyRates(cached.rates, ageHours < 24 ? 'live' : 'cached', cached.timestamp);
+  } else {
+    setRateStatus();
+    updateCur('from');
+  }
+  fetchLiveRates();
 
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function(){
